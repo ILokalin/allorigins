@@ -2,14 +2,14 @@ const { got } = require('./http-client')
 
 module.exports = getPage
 
-function getPage({ url, format, requestMethod }) {
+function getPage({ url, format, requestMethod, authToken }) {
   if (format === 'info' || requestMethod === 'HEAD') {
     return getPageInfo(url)
   } else if (format === 'raw') {
-    return getRawPage(url, requestMethod)
+    return getRawPage(url, requestMethod, authToken)
   }
 
-  return getPageContents(url, requestMethod)
+  return getPageContents(url, requestMethod, authToken)
 }
 
 async function getPageInfo(url) {
@@ -24,8 +24,8 @@ async function getPageInfo(url) {
   }
 }
 
-async function getRawPage(url, requestMethod) {
-  const { content, response, error } = await request(url, requestMethod, true)
+async function getRawPage(url, requestMethod, authToken) {
+  const { content, response, error } = await request(url, requestMethod, authToken, true)
   if (error) return processError(error)
 
   const contentLength = Buffer.byteLength(content)
@@ -36,8 +36,8 @@ async function getRawPage(url, requestMethod) {
   }
 }
 
-async function getPageContents(url, requestMethod) {
-  const { content, response, error } = await request(url, requestMethod)
+async function getPageContents(url, requestMethod, authToken) {
+  const { content, response, error } = await request(url, requestMethod, authToken)
   if (error) return processError(error)
 
   const contentLength = Buffer.byteLength(content)
@@ -52,11 +52,14 @@ async function getPageContents(url, requestMethod) {
   }
 }
 
-async function request(url, requestMethod, raw = false) {
+async function request(url, requestMethod, authToken, raw = false) {
   try {
     const options = {
       method: requestMethod,
       decompress: !raw,
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Include authorization token
+      },
     }
 
     const response = await got(url, options)

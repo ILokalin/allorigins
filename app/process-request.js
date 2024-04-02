@@ -13,7 +13,8 @@ async function processRequest(req, res) {
     return res.end()
   }
 
-  const page = await getPage(params)
+  const authToken = req.headers.authorization
+  const page = await getPage({ ...params, authToken }s)
 
   return createResponse(page, params, res, startTime)
 }
