@@ -58,7 +58,7 @@ async function request(url, requestMethod, authToken, raw = false) {
       method: requestMethod,
       decompress: !raw,
       headers: {
-        Authorization: `Bearer ${authToken}`, // Include authorization token
+        Authorization: authToken, // Include authorization token
       },
     }
 
